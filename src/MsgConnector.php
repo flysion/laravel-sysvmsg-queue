@@ -18,8 +18,10 @@ class MsgConnector implements ConnectorInterface
     {
         return new MsgQueue(
             $config['queue'],
-            $config['ftok_filename'],
-            $config['ftok_project_id']
+            $config['filename'],
+            intval($config['project_id']),
+            $config['blocking'] ?? true,
+            $config['maxsize'] ?? 4096
         );
     }
 }

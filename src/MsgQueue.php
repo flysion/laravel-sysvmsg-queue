@@ -18,7 +18,7 @@ class MsgQueue extends Queue implements QueueContract
     /**
      * @var resource
      */
-    private $msgQueue;
+    private $sysvMessageQueue;
 
     /**
      * @var int
@@ -28,28 +28,46 @@ class MsgQueue extends Queue implements QueueContract
     /**
      * @var string
      */
-    public $ftokFilename;
+    public $filename;
 
     /**
      * @var string
      */
-    public $ftokProjectId;
+    public $projectId;
+
+    /**
+     * @var bool
+     */
+    public $blocking;
+
+    /**
+     * @var int
+     */
+    public $maxsize;
 
     /**
      * MsgQueue constructor.
      *
      * @param int $queue
-     * @param string $ftokFilename
-     * @param string $ftokProjectId
+     * @param string $filename
+     * @param int $projectId
+     * @param bool $blocking
+     * @param int $maxsize
      */
-    public function __construct($queue, $ftokFilename, $ftokProjectId)
+    public function __construct($queue, $filename, $projectId, $blocking = true, $maxsize = 4096)
     {
-        $this->queue = $queue;
-        $this->ftokFilename = $ftokFilename;
-        $this->ftokProjectId = $ftokProjectId;
+        if($projectId <= 0 || $projectId > 255) {
+            throw new Exception("[project_id] must be a one character string.");
+        }
 
-        $this->msgKey = ftok($this->ftokFilename, $this->ftokProjectId);
-        $this->msgQueue = msg_get_queue($this->msgKey);
+        $this->queue = $queue;
+        $this->filename = $filename;
+        $this->projectId = $projectId;
+        $this->blocking = $blocking;
+        $this->maxsize = $maxsize;
+
+        $this->msgKey = ftok($this->filename, chr($this->projectId));
+        $this->sysvMessageQueue = msg_get_queue($this->msgKey);
     }
 
     /**
@@ -60,7 +78,7 @@ class MsgQueue extends Queue implements QueueContract
      */
     public function size($queue = null)
     {
-        $stat = msg_stat_queue($this->msgQueue);
+        $stat = msg_stat_queue($this->sysvMessageQueue);
         return $stat ? $stat['msg_qnum'] : 0;
     }
 
@@ -74,7 +92,10 @@ class MsgQueue extends Queue implements QueueContract
      */
     public function push($job, $data = '', $queue = null)
     {
-        return $this->pushRaw($this->createPayload($job, $this->getQueue($queue), $data), $queue);
+        return $this->pushRaw(
+            $this->createPayload($job, $this->getQueue($queue), $data),
+            $queue
+        );
     }
 
     /**
@@ -87,7 +108,13 @@ class MsgQueue extends Queue implements QueueContract
      */
     public function pushRaw($payload, $queue = null, array $options = [])
     {
-        return msg_send($this->msgQueue, $this->getQueue($queue), $payload, true, true);
+        return msg_send(
+            $this->sysvMessageQueue,
+            $this->getQueue($queue),
+            $payload,
+            true,
+            $this->blocking
+        );
     }
 
     /**
@@ -126,12 +153,12 @@ class MsgQueue extends Queue implements QueueContract
     public function pop($queue = null)
     {
         $ret = msg_receive(
-            $this->msgQueue,
+            $this->sysvMessageQueue,
             $queue ?? 0,
-            $srcMsgType, 4096,
+            $srcMsgType,
+            $this->maxsize,
             $msg,
-            true,
-            MSG_IPC_NOWAIT
+            true
         );
 
         if ($ret) {
