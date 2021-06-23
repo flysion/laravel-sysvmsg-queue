@@ -1,6 +1,6 @@
 <?php
 
-namespace Flysion\MsgQueue;
+namespace Flysion\SysvMsgQueue;
 
 class Exception extends \Exception
 {

@@ -1,6 +1,6 @@
 <?php
 
-namespace Flysion\MsgQueue;
+namespace Flysion\SysvMsgQueue;
 
 use Illuminate\Container\Container;
 use Illuminate\Contracts\Queue\Job as JobContract;

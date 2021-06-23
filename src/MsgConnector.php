@@ -1,6 +1,6 @@
 <?php
 
-namespace Flysion\MsgQueue;
+namespace Flysion\SysvMsgQueue;
 
 use Illuminate\Contracts\Redis\Factory as Redis;
 use Illuminate\Queue\RedisQueue;

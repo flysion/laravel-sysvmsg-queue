@@ -1,6 +1,6 @@
 {
-    "name": "flysion/laravel-msg-queue",
-    "description": "Linux msg queue of laravel",
+    "name": "flysion/laravel-sysvmsg-queue",
+    "description": "Laravel of sysvmsg queue",
     "license": "MIT",
     "authors": [
         {
@@ -27,7 +27,7 @@
     "extra": {
         "laravel": {
             "providers": [
-                "Flysion\\MsgQueue\\ServiceProvider"
+                "Flysion\\SysvMsgQueue\\ServiceProvider"
             ],
             "aliases": {
 

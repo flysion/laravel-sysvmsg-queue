@@ -1,6 +1,6 @@
 <?php 
 
-namespace Flysion\MsgQueue;
+namespace Flysion\SysvMsgQueue;
 
 class ServiceProvider extends \Illuminate\Support\ServiceProvider
 {
