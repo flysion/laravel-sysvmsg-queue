@@ -6,9 +6,8 @@ use Illuminate\Contracts\Queue\Queue as QueueContract;
 use Illuminate\Contracts\Redis\Factory as Redis;
 use Illuminate\Queue\Jobs\RedisJob;
 use Illuminate\Support\Str;
-use Illuminate\Queue\Queue;
 
-class MsgQueue extends Queue implements QueueContract
+class Queue extends \Illuminate\Queue\Queue implements QueueContract
 {
     /**
      * @var int
@@ -46,7 +45,7 @@ class MsgQueue extends Queue implements QueueContract
     public $maxsize;
 
     /**
-     * MsgQueue constructor.
+     * Queue constructor.
      *
      * @param int $queue
      * @param string $filename
@@ -162,7 +161,7 @@ class MsgQueue extends Queue implements QueueContract
         );
 
         if ($ret) {
-            return new MsgJob(
+            return new Job(
                 $this->container, $this, $msg, $this->connectionName, $srcMsgType
             );
         }

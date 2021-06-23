@@ -6,12 +6,12 @@ use Illuminate\Container\Container;
 use Illuminate\Contracts\Queue\Job as JobContract;
 use Illuminate\Queue\RedisQueue;
 
-class MsgJob extends \Illuminate\Queue\Jobs\Job implements JobContract
+class Job extends \Illuminate\Queue\Jobs\Job implements JobContract
 {
     /**
-     * @var  MsgQueue
+     * @var Queue
      */
-    protected $msgQueue;
+    protected $queueObj;
 
     /**
      * @var string
@@ -22,16 +22,16 @@ class MsgJob extends \Illuminate\Queue\Jobs\Job implements JobContract
      * Create a new job instance.
      *
      * @param  Container $container
-     * @param  MsgQueue  $msgQueue
+     * @param  Queue  $msgQueue
      * @param  string  $job
      * @param  string  $connectionName
      * @param  string  $queue
      * @return void
      */
-    public function __construct(Container $container, $msgQueue, $job, $connectionName, $queue)
+    public function __construct(Container $container, $queueObj, $job, $connectionName, $queue)
     {
         $this->container = $container;
-        $this->msgQueue = $msgQueue;
+        $this->queueObj = $queueObj;
         $this->job = $job;
         $this->connectionName = $connectionName;
         $this->queue = $queue;

@@ -6,7 +6,7 @@ use Illuminate\Contracts\Redis\Factory as Redis;
 use Illuminate\Queue\RedisQueue;
 use \Illuminate\Queue\Connectors\ConnectorInterface;
 
-class MsgConnector implements ConnectorInterface
+class Connector implements ConnectorInterface
 {
     /**
      * Establish a queue connection.
@@ -16,7 +16,7 @@ class MsgConnector implements ConnectorInterface
      */
     public function connect(array $config)
     {
-        return new MsgQueue(
+        return new Queue(
             $config['queue'],
             $config['filename'],
             intval($config['project_id']),

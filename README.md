@@ -4,6 +4,7 @@
 需要 php 的 sysvmsg 扩展，sysvmsg 扩展文档见：https://www.php.net/manual/zh/book.sem.php
 
 特点：
+
 1. 存取作业的速度快
 2. 跨进程（但不跨服务器）
 3. 容量小，具体见：
