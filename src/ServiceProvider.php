@@ -10,7 +10,7 @@ class ServiceProvider extends \Illuminate\Support\ServiceProvider
      */
     public function boot()
     {
-        $this->app['queue']->addConnector('msgqueue', function() {
+        $this->app['queue']->addConnector('sysvmsg', function() {
             return new MsgConnector;
         });
     }

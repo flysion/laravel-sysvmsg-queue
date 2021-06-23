@@ -1,7 +1,7 @@
-# laravel-msg-queue
-使用 linux 的 msg-queue 作为消息队列，集成到 laravel 中。
+# laravel-sysvmsg-queue
+使用 sysvmsg 作为消息队列，集成到 laravel 中。
 
-需要php的sysvmsg扩展，sysvmsg扩展文档见：https://www.php.net/manual/zh/book.sem.php
+需要 php 的 sysvmsg 扩展，sysvmsg 扩展文档见：https://www.php.net/manual/zh/book.sem.php
 
 特点：
 1. 存取作业的速度快
@@ -14,7 +14,7 @@
 
         // queue.connections in config/queue.php
         'testttt' => [
-            'driver' => 'msgqueue',
+            'driver' => 'sysvmsg',
             'queue' => 1, //  msg_send of message_type
             'filename' => __FILE__,
             'project_id' => 1, // 1 ~ 255
