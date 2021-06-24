@@ -70,6 +70,14 @@ class Queue extends \Illuminate\Queue\Queue implements QueueContract
     }
 
     /**
+     *
+     */
+    public function sysvMessageQueue()
+    {
+        return $this->sysvMessageQueue;
+    }
+
+    /**
      * Get the size of the queue.
      *
      * @param  string|null  $queue
