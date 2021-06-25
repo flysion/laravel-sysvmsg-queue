@@ -16,11 +16,20 @@
         // queue.connections in config/queue.php
         'testttt' => [
             'driver' => 'sysvmsg',
-            'queue' => 1, //  msg_send of message_type
+            'queue' => 1,
             'filename' => __FILE__,
-            'project_id' => 1, // 1 ~ 255
-            'blocking' => true, // 阻塞消费
+            'project_id' => 1,
+            'blocking' => true,
+            'flag' => 0,
         ]
+        
+    | 参数 | 数据类 | 说明 |
+    |:---|:---|:---|
+    |queue|int|大于0的整数，默认的推送队列|
+    |filename|string| [fotk](https://www.php.net/manual/zh/function.ftok.php)的`filename`|
+    |project_id|int| [fotk](https://www.php.net/manual/zh/function.ftok.php)的`project_id`，取值在 1~255之间|
+    |blocking|bool|[msg_send](https://www.php.net/manual/zh/function.msg-send.php)的`blocking`|
+    |flag|int|[msg_receive](https://www.php.net/manual/zh/function.msg-receive.php)的`flag`|
         
 2. 添加作业
 

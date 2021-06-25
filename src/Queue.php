@@ -3,21 +3,13 @@
 namespace Flysion\SysvMsgQueue;
 
 use Illuminate\Contracts\Queue\Queue as QueueContract;
-use Illuminate\Contracts\Redis\Factory as Redis;
-use Illuminate\Queue\Jobs\RedisJob;
-use Illuminate\Support\Str;
 
 class Queue extends \Illuminate\Queue\Queue implements QueueContract
 {
     /**
-     * @var int
-     */
-    private $msgKey;
-
-    /**
      * @var resource
      */
-    private $sysvMessageQueue;
+    private $sysvmsg;
 
     /**
      * @var int
@@ -45,6 +37,11 @@ class Queue extends \Illuminate\Queue\Queue implements QueueContract
     public $maxsize;
 
     /**
+     * @var int
+     */
+    public $flag = 0;
+
+    /**
      * Queue constructor.
      *
      * @param int $queue
@@ -53,7 +50,7 @@ class Queue extends \Illuminate\Queue\Queue implements QueueContract
      * @param bool $blocking
      * @param int $maxsize
      */
-    public function __construct($queue, $filename, $projectId, $blocking = true, $maxsize = 4096)
+    public function __construct($queue, $filename, $projectId, $blocking = true, $maxsize = 4096, $flag = 0)
     {
         if($projectId <= 0 || $projectId > 255) {
             throw new Exception("[project_id] must be a one character string.");
@@ -64,28 +61,44 @@ class Queue extends \Illuminate\Queue\Queue implements QueueContract
         $this->projectId = $projectId;
         $this->blocking = $blocking;
         $this->maxsize = $maxsize;
-
-        $this->msgKey = ftok($this->filename, chr($this->projectId));
-        $this->sysvMessageQueue = msg_get_queue($this->msgKey);
+        $this->flag = $flag;
     }
 
     /**
-     *
+     * @link https://www.php.net/manual/zh/function.ftok.php
+     * @link https://www.php.net/manual/zh/function.msg-get-queue.php
+     * @return resource
      */
-    public function sysvMessageQueue()
+    public function sysvmsg()
     {
-        return $this->sysvMessageQueue;
+        if(!$this->sysvmsg) {
+            $msgKey = ftok($this->filename, chr($this->projectId));
+            $this->sysvmsg = msg_get_queue($msgKey);
+        }
+
+        return $this->sysvmsg;
+    }
+
+    /**
+     * 清空队列
+     *
+     * @link https://www.php.net/manual/zh/function.msg-remove-queue.php
+     */
+    public function makeEmpty()
+    {
+        msg_remove_queue($this->sysvmsg());
     }
 
     /**
      * Get the size of the queue.
      *
+     * @link https://www.php.net/manual/zh/function.msg-stat-queue.php
      * @param  string|null  $queue
      * @return int
      */
     public function size($queue = null)
     {
-        $stat = msg_stat_queue($this->sysvMessageQueue);
+        $stat = msg_stat_queue($this->sysvmsg());
         return $stat ? $stat['msg_qnum'] : 0;
     }
 
@@ -108,6 +121,7 @@ class Queue extends \Illuminate\Queue\Queue implements QueueContract
     /**
      * Push a raw payload onto the queue.
      *
+     * @link https://www.php.net/manual/zh/function.msg-send.php
      * @param  string  $payload
      * @param  string|null  $queue
      * @param  array  $options
@@ -116,7 +130,7 @@ class Queue extends \Illuminate\Queue\Queue implements QueueContract
     public function pushRaw($payload, $queue = null, array $options = [])
     {
         return msg_send(
-            $this->sysvMessageQueue,
+            $this->sysvmsg(),
             $this->getQueue($queue),
             $payload,
             true,
@@ -154,18 +168,20 @@ class Queue extends \Illuminate\Queue\Queue implements QueueContract
     /**
      * Pop the next job off of the queue.
      *
+     * @link https://www.php.net/manual/zh/function.msg-receive.php
      * @param  string|null  $queue
      * @return \Illuminate\Contracts\Queue\Job|null
      */
     public function pop($queue = null)
     {
         $ret = msg_receive(
-            $this->sysvMessageQueue,
+            $this->sysvmsg(),
             $queue ?? 0,
             $srcMsgType,
             $this->maxsize,
             $msg,
-            true
+            true,
+            $this->flag
         );
 
         if ($ret) {

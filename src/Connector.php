@@ -21,7 +21,8 @@ class Connector implements ConnectorInterface
             $config['filename'],
             intval($config['project_id']),
             $config['blocking'] ?? true,
-            $config['maxsize'] ?? 4096
+            $config['maxsize'] ?? 4096,
+            $config['flag'] ?? 0
         );
     }
 }
