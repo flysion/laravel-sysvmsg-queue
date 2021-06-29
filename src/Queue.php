@@ -87,6 +87,7 @@ class Queue extends \Illuminate\Queue\Queue implements QueueContract
     public function makeEmpty()
     {
         msg_remove_queue($this->sysvmsg());
+        $this->sysvmsg = null;
     }
 
     /**
@@ -174,7 +175,7 @@ class Queue extends \Illuminate\Queue\Queue implements QueueContract
      */
     public function pop($queue = null)
     {
-        $ret = msg_receive(
+        $result = msg_receive(
             $this->sysvmsg(),
             $queue ?? 0,
             $srcMsgType,
@@ -184,7 +185,7 @@ class Queue extends \Illuminate\Queue\Queue implements QueueContract
             $this->flag
         );
 
-        if ($ret) {
+        if ($result) {
             return new Job(
                 $this->container, $this, $msg, $this->connectionName, $srcMsgType
             );
