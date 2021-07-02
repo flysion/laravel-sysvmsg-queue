@@ -80,11 +80,12 @@ class Queue extends \Illuminate\Queue\Queue implements QueueContract
     }
 
     /**
-     * 清空队列
+     * 重置队列
+     * 该操作会清空队列消息
      *
      * @link https://www.php.net/manual/zh/function.msg-remove-queue.php
      */
-    public function makeEmpty()
+    public function reset()
     {
         msg_remove_queue($this->sysvmsg());
         $this->sysvmsg = null;
