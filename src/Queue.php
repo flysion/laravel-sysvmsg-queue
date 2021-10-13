@@ -72,8 +72,9 @@ class Queue extends \Illuminate\Queue\Queue implements QueueContract
     public function sysvmsg()
     {
         if(!$this->sysvmsg) {
-            $msgKey = ftok($this->filename, chr($this->projectId));
-            $this->sysvmsg = msg_get_queue($msgKey);
+            $this->sysvmsg = msg_get_queue(
+                ftok($this->filename, chr($this->projectId))
+            );
         }
 
         return $this->sysvmsg;
