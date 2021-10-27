@@ -18,8 +18,7 @@ class Connector implements ConnectorInterface
     {
         return new Queue(
             $config['queue'],
-            $config['filename'],
-            intval($config['project_id']),
+            $config['key_options'],
             $config['blocking'] ?? true,
             $config['maxsize'] ?? 4096,
             $config['flag'] ?? 0

@@ -17,9 +17,9 @@ class Queue extends \Illuminate\Queue\Queue implements QueueContract
     public $queue;
 
     /**
-     * @var string
+     * @var array
      */
-    public $filename;
+    public $keyOptions;
 
     /**
      * @var string
@@ -45,20 +45,14 @@ class Queue extends \Illuminate\Queue\Queue implements QueueContract
      * Queue constructor.
      *
      * @param int $queue
-     * @param string $filename
-     * @param int $projectId
+     * @param array $key
      * @param bool $blocking
      * @param int $maxsize
      */
-    public function __construct($queue, $filename, $projectId, $blocking = true, $maxsize = 4096, $flag = 0)
+    public function __construct($queue, $keyOptions, $blocking = true, $maxsize = 4096, $flag = 0)
     {
-        if($projectId <= 0 || $projectId > 255) {
-            throw new Exception("[project_id] must be a one character string.");
-        }
-
         $this->queue = $queue;
-        $this->filename = $filename;
-        $this->projectId = $projectId;
+        $this->keyOptions = $keyOptions;
         $this->blocking = $blocking;
         $this->maxsize = $maxsize;
         $this->flag = $flag;
@@ -72,12 +66,25 @@ class Queue extends \Illuminate\Queue\Queue implements QueueContract
     public function sysvmsg()
     {
         if(!$this->sysvmsg) {
-            $this->sysvmsg = msg_get_queue(
-                ftok($this->filename, chr($this->projectId))
-            );
+            $this->sysvmsg = msg_get_queue($this->createQueueKey());
         }
 
         return $this->sysvmsg;
+    }
+
+    /**
+     * @return int|null
+     */
+    protected function createQueueKey()
+    {
+        switch ($this->keyOptions['type']) {
+            case 'ftok':
+                return ftok($this->keyOptions['filename'], intval($this->keyOptions['project_id']));
+            case 'random':
+                return rand(1, 0x7fffffff);
+            default:
+                return null;
+        }
     }
 
     /**
@@ -179,7 +186,7 @@ class Queue extends \Illuminate\Queue\Queue implements QueueContract
     {
         $result = msg_receive(
             $this->sysvmsg(),
-            $queue ?? 0,
+            $this->getQueue($queue),
             $srcMsgType,
             $this->maxsize,
             $msg,

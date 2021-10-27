@@ -14,26 +14,28 @@
 1. 添加配置，示例如下：
 
         // queue.connections in config/queue.php
-        'testttt' => [
+        'sysvmsg' => [
             'driver' => 'sysvmsg',
             'queue' => 1,
-            'filename' => __FILE__,
-            'project_id' => 1,
             'blocking' => true,
-            'flag' => 0,
+            'key_options' => [
+                'type' => 'ftok',
+                'filename' => __FILE__,
+                'project_id' => env('SYSVMSG_PROJECT_ID'),
+            ],
         ]
         
     | 参数 | 数据类 | 说明 |
     |:---|:---|:---|
     |queue|int|大于0的整数，默认的推送队列|
-    |filename|string| [fotk](https://www.php.net/manual/zh/function.ftok.php)的`filename`|
-    |project_id|int| [fotk](https://www.php.net/manual/zh/function.ftok.php)的`project_id`，取值在 1~255之间|
+    |key_options.filename|string| [fotk](https://www.php.net/manual/zh/function.ftok.php)的`filename`|
+    |key_options.project_id|int| [fotk](https://www.php.net/manual/zh/function.ftok.php)的`project_id`，取值在 1~255之间|
     |blocking|bool|[msg_send](https://www.php.net/manual/zh/function.msg-send.php)的`blocking`|
     |flag|int|[msg_receive](https://www.php.net/manual/zh/function.msg-receive.php)的`flag`|
         
 2. 添加作业
 
-        \App\Jobs\Example::dispath()->onConnection('testttt')->onQueue(1)
+        \App\Jobs\Example::dispath()->onConnection('sysvmsg')->onQueue(1/* 1~255 */)
         
 3. 启动消费进程
 
