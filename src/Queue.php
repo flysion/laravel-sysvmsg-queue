@@ -22,11 +22,6 @@ class Queue extends \Illuminate\Queue\Queue implements QueueContract
     public $keyOptions;
 
     /**
-     * @var string
-     */
-    public $projectId;
-
-    /**
      * @var bool
      */
     public $blocking;
@@ -39,15 +34,16 @@ class Queue extends \Illuminate\Queue\Queue implements QueueContract
     /**
      * @var int
      */
-    public $flag = 0;
+    public $flag;
 
     /**
      * Queue constructor.
      *
      * @param int $queue
-     * @param array $key
+     * @param array $keyOptions
      * @param bool $blocking
      * @param int $maxsize
+     * @param int $flag
      */
     public function __construct($queue, $keyOptions, $blocking = true, $maxsize = 4096, $flag = 0)
     {
@@ -79,7 +75,7 @@ class Queue extends \Illuminate\Queue\Queue implements QueueContract
     {
         switch ($this->keyOptions['type']) {
             case 'ftok':
-                return ftok($this->keyOptions['filename'], intval($this->keyOptions['project_id']));
+                return ftok($this->keyOptions['filename'], chr($this->keyOptions['project_id']));
             case 'random':
                 return rand(1, 0x7fffffff);
             default:
