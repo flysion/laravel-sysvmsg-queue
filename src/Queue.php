@@ -78,6 +78,8 @@ class Queue extends \Illuminate\Queue\Queue implements QueueContract
                 return ftok($this->keyOptions['filename'], chr($this->keyOptions['project_id']));
             case 'random':
                 return rand(1, 0x7fffffff);
+            case 'custom':
+                return value($this->keyOptions['value']);
             default:
                 return null;
         }
@@ -205,6 +207,6 @@ class Queue extends \Illuminate\Queue\Queue implements QueueContract
      */
     public function getQueue($queue)
     {
-        return $queue ?: $this->queue;
+        return $queue ? intval($queue) : $this->queue;
     }
 }
